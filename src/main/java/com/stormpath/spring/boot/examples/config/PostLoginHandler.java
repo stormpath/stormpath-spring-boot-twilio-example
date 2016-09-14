@@ -5,7 +5,9 @@ import com.stormpath.sdk.directory.CustomData;
 import com.stormpath.sdk.servlet.mvc.WebHandler;
 import com.stormpath.spring.boot.examples.util.TwilioLoginMessageBuilder;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,6 +37,17 @@ public class PostLoginHandler{
     protected String loginIPsIdentifier;
 
     @Bean
+    @ConditionalOnProperty(name = "twilio.enabled", havingValue = "false", matchIfMissing = true)
+    @Qualifier("loginPostHandler")
+    public WebHandler defaultLoginPostHandler() {
+        return (HttpServletRequest request, HttpServletResponse response, Account account) -> {
+            log.info("Hit default loginPostHandler with account: {}", account.getEmail());
+            return true;
+        };
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "twilio.enabled", havingValue = "true")
     public WebHandler loginPostHandler() {
         return (HttpServletRequest request, HttpServletResponse response, Account account) -> {
             log.info("Account Full Name: " + account.getFullName());
