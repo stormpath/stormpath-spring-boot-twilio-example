@@ -25,20 +25,16 @@
     </head>
     <body>
         <div class="container">
-            <h1 th:text="'Hello, ' + ${name} + '!'"/>
-
-            <div th:unless="${account}">
-                <a th:href="@{/login}" class="btn btn-primary">Login</a>
-            </div>
-            <div th:if="${account}">
-                <h4 th:text="'Account Store: ' + ${account.Directory.Name}"></h4>
-                <h4 th:text="'Provider: ' + ${account.ProviderData.ProviderId}"></h4>
-                <h4 th:text="'Phone #: ' + ${account.customData.get(phoneNumberIdentifier) ?: 'NOT SET'}"></h4>
-                <form id="logoutForm" th:action="@{/logout}" method="post">
-                    <a href="/phone" class="btn btn-primary">Set Phone #</a>
-                    <input type="submit" class="btn btn-danger" value="Logout"/>
-                </form>
-            </div>
+            <p/>
+            <form th:action="@{/phone}" method="post" class="form-inline">
+                <div class="form-group">
+                    <label class="sr-only" for="phoneNumber">Phone</label>
+                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Phone #"
+                           th:value="${account.customData.get(phoneNumberIdentifier)}"/>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Phone #</button>
+                <a href="/" class="btn btn-danger">Cancel</a>
+            </form>
         </div>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>

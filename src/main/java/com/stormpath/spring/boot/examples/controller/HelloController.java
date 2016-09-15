@@ -17,6 +17,7 @@ package com.stormpath.spring.boot.examples.controller;
 
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.servlet.account.AccountResolver;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class HelloController {
+
+    @Value("#{ @environment['stormpath.customData.phoneNumber.identifier'] ?: 'phoneNumber' }")
+    protected String phoneNumberIdentifier;
 
     @RequestMapping("/")
     public String home(HttpServletRequest request, Model model) {
@@ -37,6 +41,7 @@ public class HelloController {
             model.addAttribute(account);
         }
 
+        model.addAttribute("phoneNumberIdentifier", phoneNumberIdentifier);
         model.addAttribute("name", name);
 
         return "hello";
