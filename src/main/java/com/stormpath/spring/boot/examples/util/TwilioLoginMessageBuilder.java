@@ -47,23 +47,23 @@ public class TwilioLoginMessageBuilder {
         return this;
     }
 
-    public void send(String msg) {
+    public boolean send(String msg) {
         if (!isTwilioConfigured()) {
             log.warn(
                 "Twilio not configured. Please set the following properties: " +
                 "twilio.account.sid, twilio.auth.token, twilio.from.number"
             );
-            return;
+            return false;
         }
 
         if (toNumber == null) {
             log.warn("No toNumber set. Cannot proceed.");
-            return;
+            return false;
         }
 
         if (!Strings.hasText(msg)) {
-            log.warn("The message to send via twilio is either null or emtpy. Cannot proceed.");
-            return;
+            log.warn("The message to send via twilio is either null or empty. Cannot proceed.");
+            return false;
         }
 
         TwilioRestClient client = new TwilioRestClient(accountSid, authToken);
@@ -74,12 +74,13 @@ public class TwilioLoginMessageBuilder {
         params.add(new BasicNameValuePair("Body", msg));
 
         MessageFactory messageFactory = client.getAccount().getMessageFactory();
-        Message message = null;
         try {
-            message = messageFactory.create(params);
+            Message message = messageFactory.create(params);
             log.info("Message successfuly sent via Twilio. Sid: {}", message.getSid());
+            return true;
         } catch (TwilioRestException e) {
             log.error("Error communicating with Twilio: {}", e.getErrorMessage(), e);
+            return false;
         }
     }
 

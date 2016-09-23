@@ -47,8 +47,9 @@ public class PostLoginHandler{
     }
 
     @Bean
+    @Qualifier("loginPostHandler")
     @ConditionalOnProperty(name = "twilio.enabled", havingValue = "true")
-    public WebHandler loginPostHandler() {
+    public WebHandler twilioLoginPostHandler() {
         return (HttpServletRequest request, HttpServletResponse response, Account account) -> {
             log.info("Account Full Name: " + account.getFullName());
 
@@ -62,15 +63,18 @@ public class PostLoginHandler{
                 // they've already logged in from this location
                 log.info("{} has already logged in from: {}. No message sent.", account.getEmail(), ipAddress);
             } else {
-                saveLoginIPs(ipAddress, loginIPs, customData);
-
-                TwilioLoginMessageBuilder
+                boolean messageSent = TwilioLoginMessageBuilder
                     .builder()
                     .setAccountSid(twilioAccountSid)
                     .setAuthToken(twilioAuthToken)
                     .setFromNumber(twilioFromNumber)
                     .setToNumber(toNumber)
                     .send("New login for: " + account.getEmail() + ", from: " + ipAddress);
+
+                // only save the ip address if the twilio message was successfully sent
+                if (messageSent) {
+                    saveLoginIPs(ipAddress, loginIPs, customData);
+                }
             }
 
             return true;
